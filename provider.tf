@@ -13,3 +13,12 @@ terraform {
 provider "aws" {
   region = "us-east-1"
 }
+
+terraform {
+  backend "s3" {
+    bucket = "curso-iac-avanzado-states"
+    key = "damian/modulo3/terraform.tfstate"
+    region = "us-east-1"
+    dynamodb_table = "tabla-bloqueo-terraform2"
+}
+}
