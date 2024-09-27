@@ -12,36 +12,53 @@ env:
     AWS_ACCESS_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
 jobs:
-    terraform:
-        runs-on: ubuntu-latest
-        steps:
-          - name: clone_repo
-            uses: actions/checkout@v3
+  terraform :
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone_repo
+        uses: actions/checkout@v3
 
-          - name: install_terraform
-            uses: hashicorp/setup-terraform@v3
-            with:
-              terraform_version: "1.9.6"
+      - name: install_terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.6"
 
-          - name: Configure AWS credentials
-            uses: aws-actions/configure-aws-credentials@v1
-            with:
-              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              aws-region: us-east-1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-          - name: terraform_init
-            run: |
-              ls -la
-              terraform init
-             
-          - name: terraform_plan
-            run: |
-              ls -la
-              env
-              terraform plan
+      - name: set_environment
+        run: |
+          if [[ "${{ github.ref }}" == "refs/head/master" ]]
+          then
+            echo "Entorno productivo"
+            export environment="prod"
+          else
+          then
+            echo "Entorno desarrollo"
+            export environment="prod"
+          fi
 
-          - name: terraform_apply
-            run: |
-              terraform apply -auto-approve
+      - name: terraform_init
+        run: |
+          terraform init
+
+      - name: select_workspace
+        run: |
+          ls -la
+          terraform workspace select -or-create $environment
+
+         
+      - name: terraform_plan
+        run: |
+          ls -la
+          env
+          terraform plan
+
+      - name: terraform_apply
+        run: |
+          terraform apply -auto-approve
 
